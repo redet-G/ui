@@ -5,13 +5,19 @@ export const useMenuNavigation = (children) => {
     const menuRef = useRef(null)
     const [focusableItemsIndices, setFocusableItemsIndices] = useState(null)
     const [activeItemIndex, setActiveItemIndex] = useState(-1)
+    const [openSubMenus, setOpenSubMenus] = useState([])
 
     // Initializes the indices for focusable items
+    // track open submenus
     useEffect(() => {
         if (menuRef) {
             const menuItems = Array.from(menuRef.current.children)
             const itemsIndices = getFocusableItemsIndices(menuItems)
             setFocusableItemsIndices(itemsIndices)
+
+            setOpenSubMenus(
+                document.querySelectorAll('[data-submenu-open=true]')
+            )
         }
     }, [children])
 
@@ -31,6 +37,11 @@ export const useMenuNavigation = (children) => {
         (event) => {
             const totalFocusablePositions = focusableItemsIndices?.length
             const lastIndex = totalFocusablePositions - 1
+
+            //submenus
+            const firstChild = event.target.children[0]
+            const hasSubMenu = firstChild?.getAttribute('aria-haspopup')
+
             switch (event.key) {
                 case 'ArrowUp':
                     event.preventDefault()
@@ -51,11 +62,24 @@ export const useMenuNavigation = (children) => {
                         event.target.children[0].click()
                     }
                     break
+                // for submenus
+                case 'ArrowRight':
+                    event.preventDefault()
+                    if (hasSubMenu) {
+                        firstChild.click()
+                    }
+                    break
+                case 'ArrowLeft':
+                case 'Escape': // close flyout menu
+                    event.preventDefault()
+                    openSubMenus[openSubMenus.length - 1]?.focus()
+                    openSubMenus[openSubMenus.length - 1]?.children[0].click()
+                    break
                 default:
                     break
             }
         },
-        [activeItemIndex, focusableItemsIndices?.length]
+        [activeItemIndex, focusableItemsIndices?.length, openSubMenus]
     )
 
     // Event listeners for menu focus and key handling

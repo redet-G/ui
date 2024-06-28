@@ -60,6 +60,7 @@ const MenuItem = ({
                 data-test={dataTest}
                 role="presentation"
                 tabIndex={tabIndex}
+                data-submenu-open={children && showSubMenu}
             >
                 <a
                     target={target}
