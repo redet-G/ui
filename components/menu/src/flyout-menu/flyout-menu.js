@@ -26,23 +26,26 @@ const FlyoutMenu = ({
 
     const divRef = useRef(null)
 
-    const handleFocus = (event) => {
-        if (event.target === divRef.current) {
-            divRef.current.children[0].focus()
-        }
-    }
-
     useEffect(() => {
-        if (!divRef) {
+        if (!divRef.current) {
             return
         }
         const div = divRef.current
+
+        const handleFocus = (event) => {
+            if (event.target === div) {
+                if (div.children && div.children.length > 0) {
+                    div.children[0].focus()
+                }
+            }
+        }
+
         div.addEventListener('focus', handleFocus)
 
         return () => {
             div.removeEventListener('focus', handleFocus)
         }
-    })
+    }, [])
 
     return (
         <div
